@@ -1,0 +1,30 @@
+# Build and editor state
+build/
+.compile-*/
+target/
+*.class
+*.jar
+.idea/
+*.iml
+.vscode/
+__pycache__/
+*.py[cod]
+
+# Non-published data and local runs
+data/
+data_fix/
+standard/
+results/local/
+*.crc
+*.zip
+*.tar.gz
+*.hprof
+
+# Credentials and local configuration
+.env
+.env.*
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+local-config/

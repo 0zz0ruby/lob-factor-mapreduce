@@ -1,0 +1,9 @@
+experiment,day,elapsed_seconds,timing_scope,evidence_source,full_mean_pass,pointwise_pass
+two_job_baseline,0102,195.03620285500074,job1_start_to_job2_exit,archived_timing_csv,True,False
+two_job_memory_tuned,0102,151.07750648300134,job1_start_to_job2_exit,archived_timing_csv,True,False
+single_job,0102,16.553,cleanup_job_export_validation,recorded_terminal_output,True,not_asserted
+single_job,0103,16.714,cleanup_job_export_validation,recorded_terminal_output,True,not_asserted
+single_job,0104,16.764,cleanup_job_export_validation,recorded_terminal_output,True,not_asserted
+single_job,0105,17.222,cleanup_job_export_validation,recorded_terminal_output,True,not_asserted
+single_job,0108,16.759,cleanup_job_export_validation,recorded_terminal_output,True,not_asserted
+

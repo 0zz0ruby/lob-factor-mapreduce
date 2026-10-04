@@ -1,0 +1,37 @@
+=== File validation ===
+evaluation_window=093000-150000 (inclusive)
+standard_rows=4802
+actual_rows=4802
+matched_rows=4802
+missing_rows=0
+extra_rows=0
+
+=== Factor accuracy ===
+alpha_01: mean_error=0.0001922275975, max_error=0.9230769231@145700, pass=True
+alpha_02: mean_error=0.0001922275975, max_error=0.9230769231@145700, pass=True
+alpha_03: mean_error=0.0003534353534, max_error=0.9230769231@145700, pass=True
+alpha_04: mean_error=0.0001922275975, max_error=0.9230769231@145700, pass=True
+alpha_05: mean_error=0.0003534353534, max_error=0.9230769231@145700, pass=True
+alpha_06: mean_error=0.0003534353534, max_error=0.9230769231@145700, pass=True
+alpha_07: mean_error=0.0003534353534, max_error=0.9230769231@145700, pass=True
+alpha_08: mean_error=0.0003534353534, max_error=0.9230769231@145700, pass=True
+alpha_09: mean_error=0.0003534353534, max_error=0.9230769231@145700, pass=True
+alpha_10: mean_error=0.0001614253281, max_error=0.3077948043@145706, pass=True
+alpha_11: mean_error=0.0003534353847, max_error=0.9230769225@145700, pass=True
+alpha_12: mean_error=0.0003534353851, max_error=0.9230769197@145700, pass=True
+alpha_13: mean_error=0.0003534353665, max_error=0.9230769229@145700, pass=True
+alpha_14: mean_error=0.0003534393821, max_error=0.923076903@145700, pass=True
+alpha_15: mean_error=0.0003534353534, max_error=0.9230769231@145700, pass=True
+alpha_16: mean_error=0.0003534353534, max_error=0.9230769231@145700, pass=True
+alpha_17: mean_error=0.001476980328, max_error=1.125896648@145712, pass=True
+alpha_18: mean_error=0.001476265702, max_error=1.124920705@145712, pass=True
+alpha_19: mean_error=0.000342451464, max_error=0.9265505245@145700, pass=True
+alpha_20: mean_error=0.0001922275975, max_error=0.9230769231@145700, pass=True
+
+=== Final result ===
+threshold=0.01
+error_formula=abs(standard-actual)/abs(standard)
+zero_reference_policy=equal:0; unequal:Infinity (PDF unspecified)
+structure_pass=True
+all_factors_pass=True
+RESULT=PASS
