@@ -34,4 +34,3 @@ mkdir -p "$REPO_DIR/build"
 find "$task_build_dir" -type f -name '*.class' -delete
 find "$task_build_dir" -depth -type d -empty -delete
 echo "Built: $REPO_DIR/build/lob-factor-mapreduce.jar"
-
