@@ -1,42 +1,42 @@
-# 实验设置与证据说明
+# Experiment Setup and Evidence
 
-## 任务
+## Task
 
-CSI300 五个交易日（0102、0103、0104、0105、0108），每天约 300 个股票快照文件。使用前五档盘口，计算 20 个 LOB 因子及每个时刻的横截面均值。相邻有效快照用于差分因子，因子公式的分母保护使用 `1e-7`。
+The dataset covers the CSI300 stock universe over five trading days (`0102`, `0103`, `0104`, `0105`, and `0108`), with approximately 300 stock snapshot files per day. The pipeline uses the first five order book levels to calculate 20 LOB factors and their cross-sectional averages at each timestamp. Difference-based factors use adjacent valid snapshots, and factor denominators use a smoothing constant of `1e-7`.
 
-## 从两 Job 到单 Job
+## From Two Jobs to One
 
-1. 两 Job：Job1 按日期和股票分组，收集并排序快照后计算因子；Job2 根据交易时刻累计每维 sum/count，再计算均值。
-2. 日志诊断：0102 的 Job1 有 300 个输入 split 和 Map 任务，约 147 万条 Map 输入；两阶段之间生成约 460 MB 文本结果。任务启动、中间物化和重复解析是重点优化方向，但未单独测量它们各自贡献的时间。
-3. 配置实验：Map 内存从 2048 调为 1024 MiB，Reduce 内存从 4096 调为 2048 MiB；JVM 堆同步调整。两 Job 合计从 195.036 降为 151.078 秒。这里只保留实测观察，不将单次对照解释成稳定收益。
-4. 单 Job：将多个完整股票文件合并到 Map task，在每个文件内部顺序计算因子；Mapper 先按时间汇总，再经 Combiner 和 Reducer 累加每维 sum/count。
-5. 内存分配：只解析必要字段；当前和前一快照的两个对象交替使用；因子数组复用，避免逐行创建完整对象和字符串数组。
-6. 验证：五天分别检查 09:30:00—15:00:00 的时间集合与 20 个因子的平均相对误差。
+1. **Two-job baseline:** Job1 groups snapshots by trading day and stock, collects and sorts them, and calculates factors. Job2 accumulates per-factor `sum/count` by trading timestamp and calculates cross-sectional averages.
+2. **Log-based diagnosis:** Job1 for `0102` had 300 input splits and Map tasks, with approximately 1.47 million Map input records. The two stages produced approximately 460 MB of intermediate text. Task startup, intermediate materialization, and repeated parsing were optimization targets; their individual timing contributions were not measured separately.
+3. **Configuration experiment:** Map memory was reduced from 2048 to 1024 MiB and Reduce memory from 4096 to 2048 MiB, with corresponding JVM heap adjustments. Combined execution time decreased from 195.036 to 151.078 seconds in the recorded comparison. This is an observed result from one comparison, not a claim of a repeatable improvement of the same size.
+4. **Single-job pipeline:** Multiple complete stock files are combined into each Map task. Factors are calculated sequentially within each file, aggregated by timestamp within the Mapper, and merged through the Combiner and Reducer using per-factor `sum/count`.
+5. **Allocation reduction:** Only required fields are parsed. Two snapshot objects alternate between the current and previous states, and the factor array is reused to avoid allocating full snapshot objects and string arrays for every row.
+6. **Validation:** Each of the five days is checked for timestamp coverage and mean relative error across all 20 factors within 09:30:00–15:00:00.
 
-单 Job 依赖完整且按时间有序的单股票文件。遇到时间倒序会报错，不会自动排序；不同交易日必须分别提交。它是针对当前数据组织的工程优化，不是任意输入下都等价的通用替代方案。
+The single-job implementation requires complete stock files ordered by timestamp. It reports an error for decreasing timestamps rather than sorting the input automatically. Different trading days must be submitted separately. The optimization targets this input organization; it is not an interchangeable replacement for arbitrary input layouts.
 
-## 环境与配置
+## Environment and Configuration
 
-- Ubuntu 22.04，JDK 11，Hadoop 3.3.6。
-- 云服务器：16 vCPU、32 GiB 内存；单节点 HDFS/YARN。
-- 单 Job：1 个 Reducer，合并 split 默认 64 MiB；Snappy Map 输出压缩；排序缓冲 128 MiB，spill 阈值 0.90，shuffle parallel copies 10。
-- 0102 另有 32 / 64 / 128 MiB 的探索记录，流水线分别为 19.753 / 20.745 / 16.777 秒。不是同一配置的多轮统计，不能据此认定 128 MiB 永远最优。
+- Ubuntu 22.04, JDK 11, and Hadoop 3.3.6.
+- Cloud server: 16 vCPUs and 32 GiB of memory; single-node HDFS/YARN.
+- Single job: one Reducer, a default maximum combined split size of 64 MiB, Snappy Map-output compression, a 128 MiB sort buffer, a spill threshold of 0.90, and 10 parallel shuffle copies.
+- Additional exploratory runs for `0102` used `32 / 64 / 128` MiB split sizes, with pipeline times of `19.753 / 20.745 / 16.777` seconds, respectively. These are not repeated measurements of the same configuration and do not establish 128 MiB as universally optimal.
 
-## 已记录的时间
+## Recorded Timings
 
-`results/benchmark_summary.csv` 中：
+The entries in `results/benchmark_summary.csv` use the following definitions:
 
-- 两 Job 行来自归档 `timing.csv`，计时从 Job1 提交命令开始到 Job2 成功退出，不含导入、编译、导出和核验。
-- 单 Job 行来自当时终端输出中的 `pipeline_elapsed_seconds`，包含原脚本的旧输出清理、提交执行、导出和核验，不含数据导入或编译。
-- 当前发布脚本拒绝覆盖旧结果，替代原脚本的自动清理；这是发布安全性调整，不代表已经按新脚本重新跑过服务器计时。
-- 单 Job 五日时间总计 84.012 秒，日均 16.8024 秒。逐日单次记录不能代替重复实验、置信区间或负载控制。
+- **Two-job entries:** Taken from archived `timing.csv` records, from the start of the Job1 submission command until Job2 exits successfully. Data import, compilation, export, and validation are excluded.
+- **Single-job entries:** Taken from `pipeline_elapsed_seconds` in recorded terminal output. They include the original script's prior-output cleanup, job submission and execution, export, and validation. Data import and compilation are excluded.
+- **Release-script behavior:** The current script refuses to overwrite existing results instead of automatically clearing them. This is a release-safety change, not evidence of new server timing runs using the revised script.
+- **Five-day total:** 84.012 seconds, averaging 16.8024 seconds per day. One recorded run per day does not replace repeated measurements, confidence intervals, or load-controlled experiments.
 
-两类时间不是严格相同的计时口径，因此不发布“精确提升 XX% / XX 倍”的结论。服务器实验也不代表课程 Docker 环境、多节点集群或 GitHub 其他项目上的性能。
+The two timing scopes are not identical, so no exact percentage reduction or speedup factor is claimed. These server measurements are not benchmarks for the course Docker environment, a multi-node cluster, or other GitHub projects.
 
-## 正确性证据
+## Validation Evidence
 
-`results/accuracy/*.log` 原样保留归档中对五天最终 CSV 的核验输出，记录行数、时间集合、每因子平均误差、最大误差及 PASS/FAIL。它们是归档结果的评分日志，不包含完整 Hadoop Job 调度信息，也不包含上述单 Job 时间。
+`results/accuracy/*.log` preserves the archived validation output for the five final CSV files, including row counts, timestamp checks, per-factor mean errors, maximum errors, and PASS/FAIL results. These are scoring logs for archived outputs, not complete Hadoop scheduling logs, and they do not contain the single-job timings above.
 
-五天分别有 20/20 个因子平均误差通过。标准答案为零的情况采用保守规则：同为零记 0，否则记 Infinity。
+All 20 factors passed the mean-error check on each of the five days. Zero reference values follow a conservative rule: an actual value of zero produces zero error; any other value produces Infinity.
 
-两 Job 归档的状态字段曾标记 `ACCURACY_FAIL`：该测试工具额外要求严格逐点误差通过；全时段平均检查通过、严格逐点检查未通过，不能删除或改写成“逐点通过”。公开摘要保留这一区别。
+The archived two-job status was marked `ACCURACY_FAIL` because that testing tool additionally required the stricter pointwise-error check to pass. The full-window mean-error check passed, while the strict pointwise check did not. The summary retains this distinction rather than relabeling the result as a pointwise pass.

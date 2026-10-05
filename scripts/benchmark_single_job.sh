@@ -36,7 +36,7 @@ if ! [[ "$MAX_SPLIT_MB" =~ ^[0-9]+$ ]] || [[ "$MAX_SPLIT_MB" -lt 1 || "$MAX_SPLI
   exit 2
 fi
 
-# 发布版不自动删除旧结果；为每次测试传入唯一的输出路径。
+# Do not delete existing results; use a unique output path for each benchmark run.
 if hdfs dfs -test -e "$OUTPUT_PATH"; then
   echo "Output already exists; choose a new path: $OUTPUT_PATH" >&2
   exit 2

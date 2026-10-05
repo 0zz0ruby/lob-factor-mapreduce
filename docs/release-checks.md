@@ -1,13 +1,13 @@
-# 发布前本地检查
+# Local Release Checks
 
-检查日期：2026-10-04。
+Check date: October 4, 2026.
 
-- 17 个 Java 源文件与整理前本地项目逐文件 SHA-256 对照一致，未为展示而改写计算逻辑。
-- 使用已有 WSL Ubuntu / JDK 11 / Hadoop 3.3.6，通过 `scripts/build.sh` 编译并生成 JAR。
-- 评分器的 9 项合成回归测试全部通过：时间规范化、收盘时刻覆盖、缺行、多余时间、重复时间、非有限值、错误表头、零参考值和 1% 阈值。
-- 使用发布版评分器重新核验本地归档的五日单 Job CSV，与本地标准答案比较：五天均为 `structure_pass=True`、`all_factors_pass=True`、`RESULT=PASS`。
-- 检查发布材料，未发现服务器公网地址、GitHub token、私钥或密码配置。
+- All 17 Java source files matched the pre-packaging local project in file-by-file SHA-256 comparisons. Calculation logic was not rewritten for presentation.
+- `scripts/build.sh` compiled the sources and produced a JAR using the existing WSL Ubuntu, JDK 11, and Hadoop 3.3.6 installation.
+- All nine synthetic validator regression tests passed, covering timestamp normalization, closing-time coverage, missing rows, extra timestamps, duplicate timestamps, nonfinite values, invalid headers, zero reference values, and the 1% threshold.
+- The release validator was run against the five archived single-job CSV files and local reference answers. All five days returned `structure_pass=True`, `all_factors_pass=True`, and `RESULT=PASS`.
+- The release files were inspected; no server public IP addresses, GitHub tokens, private keys, or password configurations were found.
 
-这些检查没有重新提交 Hadoop Job，不产生新的性能测量。原始数据、标准答案、完整实验日志和完整归档仍在本地，未进入仓库。
+These checks did not resubmit Hadoop jobs or produce new performance measurements. The raw dataset, reference answers, complete experiment logs, and full archive remain local and were not added to the repository.
 
-发布版计时脚本较历史版本增加了拒绝覆盖旧结果、导出失败传播和 pipefail；历史时间仍以原实验口径解释。
+Compared with the historical version, the release timing script refuses to overwrite existing results, propagates export failures, and enables `pipefail`. Historical timings retain their original measurement definitions.
