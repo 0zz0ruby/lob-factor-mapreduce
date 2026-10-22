@@ -107,13 +107,17 @@ A zero reference value is handled conservatively: the error is zero if the actua
 |---|---:|---|
 | Two-job baseline / 0102 | 195.036 | Submission and execution of both jobs |
 | Two-job, memory-tuned / 0102 | 151.078 | Submission and execution of both jobs |
+| Two-job, memory-tuned / 0103 | 151.127 | Submission and execution of both jobs |
+| Two-job, memory-tuned / 0104 | 150.913 | Submission and execution of both jobs |
+| Two-job, memory-tuned / 0105 | 151.475 | Submission and execution of both jobs |
+| Two-job, memory-tuned / 0108 | 150.829 | Submission and execution of both jobs |
 | Single-job / 0102 | 16.553 | Job execution, CSV export, and validation, including prior-output cleanup |
 | Single-job / 0103 | 16.714 | Same scope |
 | Single-job / 0104 | 16.764 | Same scope |
 | Single-job / 0105 | 17.222 | Same scope |
 | Single-job / 0108 | 16.759 | Same scope |
 
-The recorded single-job times total 84.012 seconds across five days, averaging approximately 16.802 seconds per day. Timing starts when the original benchmark script clears the previous output and includes Hadoop job submission and execution, export from HDFS to a server-local CSV, and comparison with the reference answer. It excludes raw-data import, compilation, and downloading files from the server to a personal computer. The two-job memory-tuning experiment was a single before-and-after comparison.
+The recorded single-job times total 84.012 seconds across five days, averaging approximately 16.802 seconds per day. Timing starts when the original benchmark script clears the previous output and includes Hadoop job submission and execution, export from HDFS to a server-local CSV, and comparison with the reference answer. It excludes raw-data import, compilation, and downloading files from the server to a personal computer. The table includes memory-tuned two-job timings for all five trading days; the untuned two-job baseline was recorded for 0102 only.
 
 See [Experiment Notes](docs/experiments.md) for measurement definitions and evidence sources, and [results/accuracy](results/accuracy) for the five-day validation records. Single-job timings come from recorded terminal output. The validation logs contain rescoring of archived results, not complete Hadoop execution logs.
 
