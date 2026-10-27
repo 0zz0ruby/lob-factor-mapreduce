@@ -10,7 +10,7 @@ The pipeline processes approximately 1,500 stock snapshot files across five trad
 - Refactored the two-stage pipeline into a single job by combining complete stock files, calculating factors sequentially from adjacent snapshots, and aggregating within each Mapper before the final Reduce step.
 - Reduced object allocation and intermediate output through selective field parsing, alternating reuse of two snapshot objects, numeric timestamp keys, and per-factor `sum/count` statistics.
 - Passed the mean relative error threshold of 1% for all 20 factors on each of the five days: `0102 / 0103 / 0104 / 0105 / 0108`, covering 09:30:00–15:00:00.
-- Recorded approximately 17 seconds per day for the single-job pipeline, compared with approximately 151 seconds for the memory-tuned two-job execution. The timing scopes differ, so these figures are not a strictly like-for-like speedup measurement.
+- Recorded mean daily times across five trading days of approximately 151 seconds for the memory-tuned two-job execution and 16.8 seconds for the single-job pipeline. See [Benchmark Results](#benchmark-results) for the timing scope of each measurement.
 
 ## Pipeline
 
@@ -117,7 +117,7 @@ A zero reference value is handled conservatively: the error is zero if the actua
 | Single-job / 0105 | 17.222 | Same scope |
 | Single-job / 0108 | 16.759 | Same scope |
 
-The recorded single-job times total 84.012 seconds across five days, averaging approximately 16.802 seconds per day. Timing starts when the original benchmark script clears the previous output and includes Hadoop job submission and execution, export from HDFS to a server-local CSV, and comparison with the reference answer. It excludes raw-data import, compilation, and downloading files from the server to a personal computer. The table includes memory-tuned two-job timings for all five trading days; the untuned two-job baseline was recorded for 0102 only.
+The five memory-tuned two-job times listed above average approximately 151.084 seconds per day. The recorded single-job times total 84.012 seconds across five days, averaging approximately 16.802 seconds per day. Timing starts when the original benchmark script clears the previous output and includes Hadoop job submission and execution, export from HDFS to a server-local CSV, and comparison with the reference answer. It excludes raw-data import, compilation, and downloading files from the server to a personal computer. The table includes memory-tuned two-job timings for all five trading days; the untuned two-job baseline was recorded for 0102 only.
 
 See [Experiment Notes](docs/experiments.md) for measurement definitions and evidence sources, and [results/accuracy](results/accuracy) for the five-day validation records. Single-job timings come from recorded terminal output. The validation logs contain rescoring of archived results, not complete Hadoop execution logs.
 
